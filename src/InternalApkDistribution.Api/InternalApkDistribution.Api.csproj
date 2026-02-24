@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>InternalApkDistribution.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <ProjectReference Include="..\InternalApkDistribution.Core\InternalApkDistribution.Core.csproj" />
+    <ProjectReference Include="..\InternalApkDistribution.Infrastructure\InternalApkDistribution.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

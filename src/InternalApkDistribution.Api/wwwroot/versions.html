@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiên bản ứng dụng</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 1rem; }
+    h1 { margin-top: 0; }
+    nav { margin: 1rem 0; }
+    nav a { margin-right: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+    .error { color: #c00; }
+    a { color: #06c; }
+    .btn-danger { padding: 0.35rem 0.6rem; border: 1px solid #c00; background: #fff; color: #c00; cursor: pointer; }
+    .btn-danger[disabled] { opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Phiên bản</h1>
+  <nav>
+    <a href="/index.html">Trang chủ</a>
+    <a href="/upload.html">Upload APK</a>
+    <a href="/apps.html">Danh sách ứng dụng</a>
+  </nav>
+  <p>
+    Sắp xếp:
+    <a href="#" data-sort="versionCode" data-order="desc">Version code (mới nhất trước)</a> |
+    <a href="#" data-sort="versionCode" data-order="asc">Version code (cũ trước)</a> |
+    <a href="#" data-sort="uploadedAt" data-order="desc">Ngày upload (mới nhất)</a>
+  </p>
+  <div id="loading">Đang tải...</div>
+  <div id="error" class="error"></div>
+  <table id="table" style="display:none;">
+    <thead>
+      <tr>
+        <th>Version code</th>
+        <th>Version name</th>
+        <th>Ngày upload</th>
+        <th>Kích thước</th>
+        <th>Tải xuống</th>
+        <th>Xóa</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    const apiBase = '';
+    const params = new URLSearchParams(location.search);
+    const packageName = params.get('package') || '';
+    const loading = document.getElementById('loading');
+    const errDiv = document.getElementById('error');
+    const table = document.getElementById('table');
+    const tbody = table.querySelector('tbody');
+    const title = document.getElementById('title');
+
+    let sort = 'versionCode', order = 'desc';
+
+    function load() {
+      if (!packageName) { errDiv.textContent = 'Thiếu tham số package.'; loading.style.display = 'none'; return; }
+      title.textContent = 'Phiên bản: ' + packageName;
+      loading.style.display = 'block';
+      errDiv.textContent = '';
+      table.style.display = 'none';
+      fetch(apiBase + '/api/apps/' + encodeURIComponent(packageName) + '/versions?sort=' + sort + '&order=' + order)
+        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+        .then(versions => {
+          loading.style.display = 'none';
+          table.style.display = 'table';
+          tbody.innerHTML = versions.map(v => {
+            const date = v.uploadedAt ? new Date(v.uploadedAt).toLocaleString('vi') : '-';
+            const size = v.fileSizeBytes != null ? (v.fileSizeBytes / 1024 / 1024).toFixed(2) + ' MB' : '-';
+            const url = apiBase + '/api/apk/download/' + encodeURIComponent(v.packageName) + '/' + v.versionCode;
+            return `<tr>
+              <td>${v.versionCode}</td>
+              <td>${escapeHtml(v.versionName)}</td>
+              <td>${date}</td>
+              <td>${size}</td>
+              <td><a href="${url}" download>Tải APK</a></td>
+              <td><button class="btn-danger" data-delete-version="${v.versionCode}" data-delete-package="${escapeHtml(v.packageName)}">Xóa</button></td>
+            </tr>`;
+          }).join('');
+
+          tbody.querySelectorAll('[data-delete-version]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const pkg = btn.getAttribute('data-delete-package') || packageName;
+              const ver = btn.getAttribute('data-delete-version');
+              if (!ver) return;
+
+              const ok = confirm(`Xóa APK ${pkg} (versionCode: ${ver})? Hành động này không thể hoàn tác.`);
+              if (!ok) return;
+
+              btn.disabled = true;
+              errDiv.textContent = '';
+              try {
+                const r = await fetch(apiBase + '/api/apk/' + encodeURIComponent(pkg) + '/' + encodeURIComponent(ver), { method: 'DELETE' });
+                if (r.status === 204) {
+                  load();
+                  return;
+                }
+                const data = await r.json().catch(() => ({}));
+                errDiv.textContent = data.error || ('Lỗi xóa: HTTP ' + r.status);
+              } catch (e) {
+                errDiv.textContent = 'Lỗi xóa: ' + e.message;
+              } finally {
+                btn.disabled = false;
+              }
+            });
+          });
+        })
+        .catch(e => { loading.style.display = 'none'; errDiv.textContent = 'Lỗi: ' + e.message; });
+    }
+
+    document.querySelectorAll('[data-sort]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        sort = a.dataset.sort;
+        order = a.dataset.order;
+        load();
+      });
+    });
+
+    load();
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh sách ứng dụng</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 1rem; }
+    h1 { margin-top: 0; }
+    nav { margin: 1rem 0; }
+    nav a { margin-right: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+    .error { color: #c00; }
+    a { color: #06c; }
+  </style>
+</head>
+<body>
+  <h1>Danh sách ứng dụng</h1>
+  <nav>
+    <a href="/index.html">Trang chủ</a>
+    <a href="/upload.html">Upload APK</a>
+    <a href="/apps.html">Danh sách ứng dụng</a>
+  </nav>
+  <div id="loading">Đang tải...</div>
+  <div id="error" class="error"></div>
+  <table id="table" style="display:none;">
+    <thead>
+      <tr>
+        <th>Ứng dụng</th>
+        <th>Package</th>
+        <th>Số phiên bản</th>
+        <th>Mới nhất</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    const apiBase = '';
+    const loading = document.getElementById('loading');
+    const errDiv = document.getElementById('error');
+    const table = document.getElementById('table');
+    const tbody = table.querySelector('tbody');
+
+    (async function () {
+      try {
+        const r = await fetch(apiBase + '/api/apps');
+        if (!r.ok) throw new Error(await r.text());
+        const apps = await r.json();
+        loading.style.display = 'none';
+        errDiv.textContent = '';
+        table.style.display = 'table';
+        tbody.innerHTML = apps.map(a => `
+          <tr>
+            <td>${escapeHtml(a.appName)}</td>
+            <td><code>${escapeHtml(a.packageName)}</code></td>
+            <td>${a.versionCount}</td>
+            <td>${a.latestVersionName != null ? escapeHtml(a.latestVersionName) : '-'}</td>
+            <td><a href="/versions.html?package=${encodeURIComponent(a.packageName)}">Xem phiên bản</a></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        loading.style.display = 'none';
+        errDiv.textContent = 'Lỗi: ' + e.message;
+      }
+    })();
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

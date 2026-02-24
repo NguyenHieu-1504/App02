@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload APK</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; }
+    h1 { margin-top: 0; }
+    nav { margin: 1rem 0; }
+    nav a { margin-right: 1rem; }
+    input[type="file"] { margin: 0.5rem 0; display: block; }
+    button { padding: 0.5rem 1rem; cursor: pointer; margin-top: 0.5rem; }
+    .error { color: #c00; }
+    .success { color: #080; }
+    #message { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Upload APK</h1>
+  <nav>
+    <a href="/index.html">Trang chủ</a>
+    <a href="/upload.html">Upload APK</a>
+    <a href="/apps.html">Danh sách ứng dụng</a>
+  </nav>
+  <form id="form">
+    <label for="file">Chọn file .apk:</label>
+    <input type="file" id="file" name="file" accept=".apk" required>
+    <button type="submit" id="btn">Tải lên</button>
+  </form>
+  <div id="message"></div>
+  <script>
+    const form = document.getElementById('form');
+    const fileInput = document.getElementById('file');
+    const btn = document.getElementById('btn');
+    const message = document.getElementById('message');
+    const apiBase = '';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = fileInput.files?.[0];
+      if (!file) { show('Vui lòng chọn file.', true); return; }
+      if (!file.name.toLowerCase().endsWith('.apk')) { show('Chỉ chấp nhận file .apk.', true); return; }
+
+      btn.disabled = true;
+      message.textContent = 'Đang tải lên...';
+      message.className = '';
+
+      const fd = new FormData();
+      fd.append('file', file);
+      try {
+        const r = await fetch(apiBase + '/api/apk/upload', { method: 'POST', body: fd });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok) {
+          show('Upload thành công: ' + (data.appName || '') + ' ' + (data.versionName || '') + ' (versionCode: ' + data.versionCode + ').', false);
+          fileInput.value = '';
+        } else {
+          show(data.error || 'Lỗi ' + r.status, true);
+        }
+      } catch (err) {
+        show('Lỗi kết nối: ' + err.message, true);
+      }
+      btn.disabled = false;
+    });
+
+    function show(text, isError) {
+      message.textContent = text;
+      message.className = isError ? 'error' : 'success';
+    }
+  </script>
+</body>
+</html>
