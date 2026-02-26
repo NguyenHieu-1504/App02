@@ -5,16 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Upload APK</title>
   <style>
+    :root {
+      --cyan-main: #00bcd4;
+      --cyan-soft: #e0f7fa;
+      --cyan-dark: #008ba3;
+      --text-main: #123340;
+      --border-soft: #c0e4ea;
+    }
     * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; }
-    h1 { margin-top: 0; }
-    nav { margin: 1rem 0; }
-    nav a { margin-right: 1rem; }
-    input[type="file"] { margin: 0.5rem 0; display: block; }
-    button { padding: 0.5rem 1rem; cursor: pointer; margin-top: 0.5rem; }
-    .error { color: #c00; }
-    .success { color: #080; }
-    #message { margin-top: 1rem; }
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 2rem;
+      background: linear-gradient(180deg, #f4feff, #e8f7fb);
+      color: var(--text-main);
+    }
+    h1 { margin-top: 0; color: var(--cyan-dark); }
+    nav {
+      margin: 1rem 0 1.5rem;
+      padding: 0.5rem 0.75rem;
+      background: white;
+      border-radius: 999px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      display: inline-flex;
+      gap: 0.5rem;
+    }
+    nav a {
+      text-decoration: none;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      color: var(--cyan-dark);
+      font-size: 0.95rem;
+    }
+    nav a:hover {
+      background: var(--cyan-soft);
+    }
+    form {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-soft);
+    }
+    label { font-weight: 500; }
+    input[type="file"] {
+      margin: 0.75rem 0 0.5rem;
+      display: block;
+    }
+    button {
+      padding: 0.5rem 1.4rem;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--cyan-main);
+      background: var(--cyan-main);
+      color: white;
+      font-weight: 500;
+    }
+    button:hover { background: var(--cyan-dark); border-color: var(--cyan-dark); }
+    button[disabled] { opacity: 0.7; cursor: wait; }
+    .error { color: #c0392b; }
+    .success { color: #1b8a4a; }
+    #message { margin-top: 1rem; min-height: 1.2rem; }
   </style>
 </head>
 <body>
