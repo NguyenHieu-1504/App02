@@ -22,3 +22,5 @@ Thumbs.db
 
 # Others
 *.vsidx
+# Local APK artifacts
+src/InternalApkDistribution.Api/data/apk/

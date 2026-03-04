@@ -46,6 +46,8 @@ public sealed class ExceptionHandlingMiddleware
             if (iop.Message.Contains("Invalid APK", StringComparison.OrdinalIgnoreCase))
                 return (HttpStatusCode.BadRequest, iop.Message);
         }
+        if (ex is FileNotFoundException)
+            return (HttpStatusCode.NotFound, ex.Message);
         if (ex is ArgumentException)
             return (HttpStatusCode.BadRequest, ex.Message);
         return (HttpStatusCode.InternalServerError, "Đã xảy ra lỗi. Vui lòng thử lại sau.");

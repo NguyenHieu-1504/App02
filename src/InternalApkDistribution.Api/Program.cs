@@ -22,26 +22,37 @@ builder.Services.AddSingleton<IApkFileStorage>(_ => new ApkFileStorage(basePath)
 // APK metadata reader
 builder.Services.AddSingleton<IApkMetadataReader, ApkNetMetadataReader>();
 
+// Application service (business logic)
+builder.Services.AddSingleton<InternalApkDistribution.Api.Services.IApkReleaseService, InternalApkDistribution.Api.Services.ApkReleaseService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // CORS nội bộ (tùy chỉnh theo môi trường)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("InternalCors", policy =>
     {
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader();
+            return;
+        }
+
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("InternalCors");
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<ApiKeyAuthMiddleware>();
 app.MapControllers();
 
 // Fallback cho SPA/static UI

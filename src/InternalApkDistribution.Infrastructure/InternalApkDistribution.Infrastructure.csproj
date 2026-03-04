@@ -6,8 +6,8 @@
     <RootNamespace>InternalApkDistribution.Infrastructure</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ApkReader" Version="2.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
-    <PackageReference Include="Iteedee.ApkReader" Version="1.0.1" />
     <ProjectReference Include="..\InternalApkDistribution.Core\InternalApkDistribution.Core.csproj" />
   </ItemGroup>
 </Project>

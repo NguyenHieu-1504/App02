@@ -1,0 +1,42 @@
+﻿<div class="card pad">
+  <div style="display:flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+    <div>
+      <h2 style="margin: 0; color: var(--cyan-dark);">Danh sách ứng dụng</h2>
+      <div class="muted" style="margin-top: 0.25rem;">Nhóm theo packageName, xem số version và phiên bản mới nhất.</div>
+    </div>
+    <button class="btn" (click)="reload()" [disabled]="loading">Tải lại</button>
+  </div>
+
+  <div class="alert" *ngIf="loading">Đang tải...</div>
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <table class="table" *ngIf="!loading && !error">
+    <thead>
+      <tr>
+        <th>Ứng dụng</th>
+        <th>Package</th>
+        <th>Số phiên bản</th>
+        <th>Mới nhất</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of apps">
+        <td><b>{{ a.appName }}</b></td>
+        <td><code>{{ a.packageName }}</code></td>
+        <td>{{ a.versionCount }}</td>
+        <td>
+          <span *ngIf="a.latestVersionCode != null" class="pill">{{ a.latestVersionCode }}</span>
+          <span *ngIf="a.latestVersionName"> {{ a.latestVersionName }}</span>
+          <span *ngIf="a.latestVersionCode == null" class="muted">-</span>
+        </td>
+        <td style="white-space: nowrap;">
+          <a class="btn" [routerLink]="['/versions', a.packageName]" style="text-decoration:none;">Xem phiên bản</a>
+        </td>
+      </tr>
+      <tr *ngIf="apps.length === 0">
+        <td colspan="5" class="muted">Chưa có ứng dụng nào. Hãy upload một APK trước.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

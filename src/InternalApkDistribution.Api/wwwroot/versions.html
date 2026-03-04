@@ -107,6 +107,7 @@
     const table = document.getElementById('table');
     const tbody = table.querySelector('tbody');
     const title = document.getElementById('title');
+    const apiKey = localStorage.getItem('apkApiKey') || 'dev-local-key';
 
     let sort = 'versionCode', order = 'desc';
 
@@ -124,7 +125,7 @@
           tbody.innerHTML = versions.map(v => {
             const date = v.uploadedAt ? new Date(v.uploadedAt).toLocaleString('vi') : '-';
             const size = v.fileSizeBytes != null ? (v.fileSizeBytes / 1024 / 1024).toFixed(2) + ' MB' : '-';
-            const url = apiBase + '/api/apk/download/' + encodeURIComponent(v.packageName) + '/' + v.versionCode;
+            const url = apiBase + '/api/apk/download/' + encodeURIComponent(v.packageName) + '/' + v.versionCode + '?apiKey=' + encodeURIComponent(apiKey);
             return `<tr>
               <td>${v.versionCode}</td>
               <td>${escapeHtml(v.versionName)}</td>
@@ -147,7 +148,10 @@
               btn.disabled = true;
               errDiv.textContent = '';
               try {
-                const r = await fetch(apiBase + '/api/apk/' + encodeURIComponent(pkg) + '/' + encodeURIComponent(ver), { method: 'DELETE' });
+                const r = await fetch(apiBase + '/api/apk/' + encodeURIComponent(pkg) + '/' + encodeURIComponent(ver), {
+                  method: 'DELETE',
+                  headers: { 'X-Api-Key': apiKey }
+                });
                 if (r.status === 204) {
                   load();
                   return;

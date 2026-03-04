@@ -1,0 +1,24 @@
+﻿<div class="card pad">
+  <h2 style="margin: 0 0 0.75rem; color: var(--cyan-dark);">Upload APK</h2>
+  <p class="muted" style="margin: 0 0 1rem;">Chọn file `.apk` để upload. Hệ thống sẽ tự đọc packageName/versionCode/versionName từ APK.</p>
+
+  <div style="display: grid; gap: 0.75rem;">
+    <input type="file" accept=".apk" (change)="onFileSelected($any($event.target).files)" />
+
+    <div style="display:flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+      <button class="btn btn-primary" (click)="upload()" [disabled]="isUploading || !selectedFile">
+        {{ isUploading ? 'Đang upload...' : 'Upload' }}
+      </button>
+      <span class="muted" *ngIf="selectedFile">Đã chọn: <b>{{ selectedFile.name }}</b></span>
+    </div>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">
+    <div><b>Đã upload thành công!</b></div>
+    <div style="margin-top: 0.35rem;">
+      <b>{{ success.appName }}</b> - versionName: <b>{{ success.versionName }}</b>,
+      versionCode: <span class="pill">{{ success.versionCode }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+﻿<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div class="titles">
+      <div class="title">Internal APK Distribution</div>
+      <div class="subtitle">Quản lý & phân phối APK nội bộ</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Trang chủ</a>
+    <a routerLink="/upload" routerLinkActive="active">Upload</a>
+    <a routerLink="/apps" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ứng dụng</a>
+  </nav>
+</header>
+
+<main class="container">
+  <router-outlet />
+</main>

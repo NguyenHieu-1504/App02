@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -73,14 +73,14 @@
 <body>
   <h1>Upload APK</h1>
   <nav>
-    <a href="/index.html">Trang chủ</a>
+    <a href="/index.html">Trang chá»§</a>
     <a href="/upload.html">Upload APK</a>
-    <a href="/apps.html">Danh sách ứng dụng</a>
+    <a href="/apps.html">Danh sÃ¡ch á»©ng dá»¥ng</a>
   </nav>
   <form id="form">
-    <label for="file">Chọn file .apk:</label>
+    <label for="file">Chá»n file .apk:</label>
     <input type="file" id="file" name="file" accept=".apk" required>
-    <button type="submit" id="btn">Tải lên</button>
+    <button type="submit" id="btn">Táº£i lÃªn</button>
   </form>
   <div id="message"></div>
   <script>
@@ -89,30 +89,41 @@
     const btn = document.getElementById('btn');
     const message = document.getElementById('message');
     const apiBase = '';
+    const apiKey = localStorage.getItem('apkApiKey') || 'dev-local-key';
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const file = fileInput.files?.[0];
-      if (!file) { show('Vui lòng chọn file.', true); return; }
-      if (!file.name.toLowerCase().endsWith('.apk')) { show('Chỉ chấp nhận file .apk.', true); return; }
+      if (!file) { show('Vui lÃ²ng chá»n file.', true); return; }
+      if (!file.name.toLowerCase().endsWith('.apk')) { show('Chá»‰ cháº¥p nháº­n file .apk.', true); return; }
 
       btn.disabled = true;
-      message.textContent = 'Đang tải lên...';
+      message.textContent = 'Äang táº£i lÃªn...';
       message.className = '';
 
       const fd = new FormData();
       fd.append('file', file);
       try {
-        const r = await fetch(apiBase + '/api/apk/upload', { method: 'POST', body: fd });
+        const r = await fetch(apiBase + '/api/apk/upload', {
+          method: 'POST',
+          body: fd,
+          headers: { 'X-Api-Key': apiKey }
+        });
         const data = await r.json().catch(() => ({}));
         if (r.ok) {
-          show('Upload thành công: ' + (data.appName || '') + ' ' + (data.versionName || '') + ' (versionCode: ' + data.versionCode + ').', false);
+          show('Upload thÃ nh cÃ´ng: ' + (data.appName || '') + ' ' + (data.versionName || '') + ' (versionCode: ' + data.versionCode + ').', false);
           fileInput.value = '';
         } else {
-          show(data.error || 'Lỗi ' + r.status, true);
+          if (r.status === 409) {
+            show('Version da ton tai (trung packageName + versionCode). Hay tang versionCode hoac xoa ban cu truoc khi upload lai.', true);
+          } else if (r.status === 401) {
+            show('Khong du quyen upload. Kiem tra API key trong localStorage (apkApiKey).', true);
+          } else {
+            show(data.error || 'Loi ' + r.status, true);
+          }
         }
       } catch (err) {
-        show('Lỗi kết nối: ' + err.message, true);
+        show('Lá»—i káº¿t ná»‘i: ' + err.message, true);
       }
       btn.disabled = false;
     });
@@ -124,3 +135,4 @@
   </script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-using InternalApkDistribution.Core.Interfaces;
+﻿using InternalApkDistribution.Core.Interfaces;
 
 namespace InternalApkDistribution.Infrastructure.Storage;
 
@@ -39,12 +39,13 @@ public sealed class ApkFileStorage : IApkFileStorage
 
     public Task<Stream?> OpenReadByPathAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        var safePath = TryGetSafePath(filePath);
+        if (safePath == null || !File.Exists(safePath))
             return Task.FromResult<Stream?>(null);
 
         try
         {
-            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var stream = new FileStream(safePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             return Task.FromResult<Stream?>(stream);
         }
         catch
@@ -57,14 +58,15 @@ public sealed class ApkFileStorage : IApkFileStorage
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            var safePath = TryGetSafePath(filePath);
+            if (safePath != null && File.Exists(safePath))
             {
-                File.Delete(filePath);
+                File.Delete(safePath);
             }
         }
         catch
         {
-            // Nuốt lỗi xóa file để không làm hỏng logic xóa metadata
+            // Swallow delete errors to avoid breaking metadata cleanup flow.
         }
 
         return Task.CompletedTask;
@@ -82,5 +84,27 @@ public sealed class ApkFileStorage : IApkFileStorage
         var invalid = Path.GetInvalidFileNameChars();
         var sanitized = string.Join("_", name.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).Trim();
         return string.IsNullOrEmpty(sanitized) ? "app.apk" : sanitized;
+    }
+
+    private string? TryGetSafePath(string? filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+            return null;
+
+        try
+        {
+            var fullPath = Path.GetFullPath(filePath);
+            var basePathWithSeparator = _basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+
+            var isInsideBase = fullPath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(fullPath, _basePath, StringComparison.OrdinalIgnoreCase);
+
+            return isInsideBase ? fullPath : null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

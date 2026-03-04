@@ -1,0 +1,55 @@
+﻿<div class="card pad">
+  <div style="display:flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+    <div>
+      <h2 style="margin: 0; color: var(--cyan-dark);">Phiên bản</h2>
+      <div class="muted" style="margin-top: 0.25rem;">
+        Package: <code>{{ packageName }}</code>
+      </div>
+    </div>
+    <div style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a class="btn" routerLink="/apps" style="text-decoration:none;">Quay lại</a>
+      <button class="btn" (click)="reload()" [disabled]="loading">Tải lại</button>
+    </div>
+  </div>
+
+  <div style="margin-top: 0.75rem; display:flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button class="btn" (click)="setSort('versionCode', 'desc')">VersionCode ↓</button>
+    <button class="btn" (click)="setSort('versionCode', 'asc')">VersionCode ↑</button>
+    <button class="btn" (click)="setSort('uploadedAt', 'desc')">Ngày upload ↓</button>
+  </div>
+
+  <div class="alert" *ngIf="loading">Đang tải...</div>
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <table class="table" *ngIf="!loading && !error">
+    <thead>
+      <tr>
+        <th>Version code</th>
+        <th>Version name</th>
+        <th>Ngày upload</th>
+        <th>Kích thước</th>
+        <th>Tải xuống</th>
+        <th>Xóa</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of versions">
+        <td><span class="pill">{{ v.versionCode }}</span></td>
+        <td><b>{{ v.versionName }}</b></td>
+        <td>{{ v.uploadedAt ? (v.uploadedAt | date:'medium') : '-' }}</td>
+        <td>{{ v.fileSizeBytes != null ? formatSize(v.fileSizeBytes) : '-' }}</td>
+        <td style="white-space: nowrap;">
+          <a class="btn btn-primary" [href]="downloadUrl(v)" download style="text-decoration:none;">Tải APK</a>
+        </td>
+        <td style="white-space: nowrap;">
+          <button class="btn btn-danger" (click)="delete(v)" [disabled]="deleting[v.versionCode]">
+            {{ deleting[v.versionCode] ? 'Đang xóa...' : 'Xóa' }}
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="versions.length === 0">
+        <td colspan="6" class="muted">Chưa có phiên bản nào.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

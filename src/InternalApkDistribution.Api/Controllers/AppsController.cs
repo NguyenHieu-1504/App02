@@ -1,4 +1,4 @@
-using InternalApkDistribution.Core.DTOs;
+﻿using InternalApkDistribution.Core.DTOs;
 using InternalApkDistribution.Core.Entities;
 using InternalApkDistribution.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +7,7 @@ namespace InternalApkDistribution.Api.Controllers;
 
 [ApiController]
 [Route("api/apps")]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class AppsController : ControllerBase
 {
     private readonly IApkReleaseRepository _repository;
@@ -38,8 +39,6 @@ public class AppsController : ControllerBase
     {
         var descending = string.Equals(order, "desc", StringComparison.OrdinalIgnoreCase);
         var list = await _repository.GetVersionsAsync(packageName, sort, descending, cancellationToken);
-        if (list.Count == 0)
-            return NotFound(new { error = "Không tìm thấy ứng dụng hoặc chưa có phiên bản nào." });
         return Ok(list);
     }
 }

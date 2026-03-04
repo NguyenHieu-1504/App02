@@ -1,0 +1,142 @@
+/* Global cyan theme + basic components */
+:root {
+  --cyan-main: #00bcd4;
+  --cyan-soft: #e0f7fa;
+  --cyan-dark: #008ba3;
+  --text-main: #123340;
+  --text-soft: rgba(18, 51, 64, 0.72);
+  --border-soft: #c0e4ea;
+  --surface: #ffffff;
+  --bg1: #f4feff;
+  --bg2: #e8f7fb;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text-main);
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.05);
+}
+
+.card.pad {
+  padding: 1.25rem 1.5rem;
+}
+
+.muted {
+  color: var(--text-soft);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border-soft);
+  background: white;
+  color: var(--cyan-dark);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: var(--cyan-soft);
+}
+
+.btn-primary {
+  border-color: var(--cyan-main);
+  background: var(--cyan-main);
+  color: white;
+}
+
+.btn-primary:hover {
+  border-color: var(--cyan-dark);
+  background: var(--cyan-dark);
+}
+
+.btn-danger {
+  border-color: #f1a4a0;
+  background: #ffeceb;
+  color: #c0392b;
+}
+
+.btn-danger:hover {
+  background: #ffd4d1;
+}
+
+.btn[disabled], .btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.table th, .table td {
+  border: 1px solid var(--border-soft);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  background: var(--cyan-soft);
+  font-weight: 700;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(0, 188, 212, 0.12);
+  color: var(--cyan-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.alert {
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: #f7fdff;
+}
+
+.alert.error {
+  border-color: #f1a4a0;
+  background: #fff4f3;
+  color: #8e2c24;
+}
+
+.alert.success {
+  border-color: #bde7cd;
+  background: #f2fbf6;
+  color: #1b6f3b;
+}
+
+a {
+  color: var(--cyan-dark);
+}
+
+a:hover {
+  text-decoration: underline;
+}
