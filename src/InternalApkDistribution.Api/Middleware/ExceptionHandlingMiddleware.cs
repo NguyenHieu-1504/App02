@@ -22,14 +22,19 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
-            await WriteErrorResponseAsync(context, ex);
+            var (statusCode, message) = MapException(ex);
+
+            if ((int)statusCode >= 500)
+                _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+            else
+                _logger.LogWarning(ex, "Handled request error ({StatusCode}): {Message}", (int)statusCode, ex.Message);
+
+            await WriteErrorResponseAsync(context, statusCode, message);
         }
     }
 
-    private static async Task WriteErrorResponseAsync(HttpContext context, Exception ex)
+    private static async Task WriteErrorResponseAsync(HttpContext context, HttpStatusCode statusCode, string message)
     {
-        var (statusCode, message) = MapException(ex);
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
         var body = new { error = message, code = statusCode.ToString() };
@@ -44,7 +49,7 @@ public sealed class ExceptionHandlingMiddleware
                 iop.Message.Contains("Version already exists", StringComparison.OrdinalIgnoreCase))
                 return (HttpStatusCode.Conflict, "Phiên bản này đã tồn tại (trùng packageName + versionCode).");
             if (iop.Message.Contains("Invalid APK", StringComparison.OrdinalIgnoreCase))
-                return (HttpStatusCode.BadRequest, iop.Message);
+                return (HttpStatusCode.BadRequest, "File APK khong hop le hoac chua duoc ho tro. Vui long kiem tra lai file va thu lai.");
         }
         if (ex is FileNotFoundException)
             return (HttpStatusCode.NotFound, ex.Message);

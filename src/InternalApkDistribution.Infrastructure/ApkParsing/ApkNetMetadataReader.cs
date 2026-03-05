@@ -15,7 +15,18 @@ public sealed class ApkNetMetadataReader : IApkMetadataReader
         seekable.Position = 0;
 
         var apkReader = new ApkReaderLib.ApkReader<ApkReaderLib.ApkInfo>();
-        var info = apkReader.Read(seekable);
+
+        ApkReaderLib.ApkInfo? info;
+        try
+        {
+            info = apkReader.Read(seekable);
+        }
+        catch (Exception ex) when (IsUnsupportedApkFormatException(ex))
+        {
+            throw new InvalidOperationException(
+                "Invalid APK: could not parse AndroidManifest/resources. The APK may be corrupted, protected, or use an unsupported resource format.",
+                ex);
+        }
 
         if (info == null || string.IsNullOrWhiteSpace(info.PackageName))
             throw new InvalidOperationException("Invalid APK: could not read package name from manifest.");
@@ -47,4 +58,10 @@ public sealed class ApkNetMetadataReader : IApkMetadataReader
         var sanitized = string.Join("_", name.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).Trim();
         return string.IsNullOrEmpty(sanitized) ? "App" : sanitized;
     }
+
+    private static bool IsUnsupportedApkFormatException(Exception ex)
+        => ex is ApkReaderLib.ApkReaderException
+           or ArgumentOutOfRangeException
+           or IndexOutOfRangeException
+           or InvalidDataException;
 }
